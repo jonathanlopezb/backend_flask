@@ -17,7 +17,7 @@ from models import *
 app = Flask(__name__)
 app.secret_key = 'secreto'
 db = SQLAlchemy(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Lopez123*@localhost:5432/prueba'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'conexion a la base datos'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -34,7 +34,7 @@ login_manager.init_app(app)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'mnsneptuno@gmail.com'
-app.config['MAIL_PASSWORD'] = '92021002749jona'
+app.config['MAIL_USERNAME'] = 'correo'
+app.config['MAIL_PASSWORD'] = 'contraseña del correo'
 
 mail = Mail(app)
