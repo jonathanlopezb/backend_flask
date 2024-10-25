@@ -21,3 +21,4 @@ marshmallow-sqlalchemy
 pymysql
 Gunicorn
 Flask-Bcrypt
+Flask-Cors
