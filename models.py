@@ -1,3 +1,4 @@
+from flask_login import UserMixin
 from flask_marshmallow import Marshmallow
 import datetime
 from utils import *
@@ -61,7 +62,8 @@ class Observation(db.Model):
         self.description = description
         self.user_id = user_id
 
-db.create_all()
+with app.app_context():
+    db.create_all()
 
 class ObservationSchema(ma.Schema):
     class Meta:

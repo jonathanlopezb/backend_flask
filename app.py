@@ -7,6 +7,12 @@ from utils import random_token
 from models import *
 from config import *
 
+# from dotenv import load_dotenv
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import Session
+# from sqlalchemy import select
+
+# engine = create_engine(db, connect_args={'check_same_thread': False}, echo=True)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -168,8 +174,8 @@ def create_task():
   db.session.add(new_observation)
   db.session.commit()
 
-  return jsonify ({'mensaje' : 'Tarea registrada con exito'})
 
+  return jsonify ({'mensaje' : 'Tarea registrada con exito'})
 
 
 
@@ -218,8 +224,8 @@ def delete_observation(id):
   observation = observation.query.get(id)
   db.session.delete(task)
   db.session.commit()
+
+
   return jsonify ({'mensaje' : 'se ha eliminado correctamente tu tarea' })
-
-
 if __name__ == "__main__":
     app.run(debug=True, port=5002)

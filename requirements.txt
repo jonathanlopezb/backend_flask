@@ -6,7 +6,16 @@ flask_sqlalchemy
 sqlalchemy
 flask_admin
 PyJWT
-Flask-User 
 Flask-Security
 Flask-Mail
+flask-marshmallow
+marshmallow-sqlalchemy
+SQLAlchemy
+sqlalchemy-libsql
+sqlalchemy-libsql
 
+flask
+flask-sqlalchemy
+flask-marshmallow
+marshmallow-sqlalchemy
+pymysql
