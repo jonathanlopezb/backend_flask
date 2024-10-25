@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.secret_key = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJleHAiOjE3MzI0MjExNDIsImlhdCI6MTcyOTgyOTE0MiwiaWQiOiI5OWU4MzcwYS0yMmY1LTRmMDMtYjNmZC01NWVlNTI5OWM2MjMifQ.2sBLQAQCB3KboIucG_r_iqJE2BhJhmxb4unnQveQe0C4gapN7uWkHM7_-7DlhMfCqnbi0gZ0lwsqvTY_aKdZDg'
 
 # Configuración de la base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite+libsql://sisuma-jonatanlopezb.aws-us-east-1.turso.io/?authToken=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9&secure=true'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite+libsql://sisuma-jonatanlopezb.aws-us-east-1.turso.io/?authToken=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3Mjk4MjY2ODUsImlkIjoiOTllODM3MGEtMjJmNS00ZjAzLWIzZmQtNTVlZTUyOTljNjIzIn0.VkcVTdSNOZoOgHcq-3XuHniYArgxPhrfKXEgia1h9g3PrHRZ9mbb-ycGcuwNYeY1vSxO6Bb4v08dmwSHd3_8Dg&secure=true'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
