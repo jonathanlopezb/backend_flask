@@ -19,3 +19,4 @@ flask-sqlalchemy
 flask-marshmallow
 marshmallow-sqlalchemy
 pymysql
+Gunicorn
