@@ -20,3 +20,4 @@ flask-marshmallow
 marshmallow-sqlalchemy
 pymysql
 Gunicorn
+Flask-Bcrypt
