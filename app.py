@@ -8,7 +8,6 @@ from models import *
 from config import *
 
 from datetime import datetime
-from flask_cors import CORS
 
 # from dotenv import load_dotenv
 # from sqlalchemy import create_engine

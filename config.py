@@ -6,6 +6,7 @@ from flask_mail import Mail, Message
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from sqlalchemy import create_engine
+from flask_cors import CORS
 
 
 app = Flask(__name__)
@@ -15,8 +16,8 @@ app.secret_key = 'sisuma'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite+libsql://sisuma-jonatanlopezb.turso.io/?authToken=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3Mjk4MzI0NTMsImlkIjoiYjU5NjJmZDQtNDdkNi00ODZlLTlkZDQtNmRiZTliMGFjZTM5In0.0geswdgDlRWv5xmhEUiehPOmIntvt1XuqZ_bUwl1xg14cG92LQqMJAWANNke43el8_KtTFD1lU6qGmhJbkVbAA&secure=true'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 print(app)
+CORS(app)
 
 # Configuración del panel de administración
 admin = Admin(app, name='Control Panel')
