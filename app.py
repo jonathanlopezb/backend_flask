@@ -75,7 +75,7 @@ def login():
     
     # Validar existencia del usuario y coincidencia de contraseña
     if usuario and usuario.check_password(password):
-        return jsonify({"status": "ok","message": "Inicio de sesión exitoso", "user_id": usuario.id, "rol": usuario.rol}), 200
+        return jsonify({"status": "ok","message": "Inicio de sesión exitoso", "user_id": usuario.id, "rol": usuario.rol, 'user_name': usuario.nombre_usuario}), 200
     else:
         return jsonify({"error": "Nombre de usuario o contraseña incorrectos"}), 401
     
