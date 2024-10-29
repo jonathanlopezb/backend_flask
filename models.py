@@ -31,8 +31,9 @@ class Cliente(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    fecha_inicio = db.Column(db.Date, nullable=False)
-    fecha_termino = db.Column(db.Date, nullable=False)
+    numero_identificacion = db.Column(db.String(20), nullable=False, unique=True)
+    celular = db.Column(db.String(20), nullable=False, unique=True)
+
 
     prestamos = db.relationship('Prestamo', back_populates="cliente")
 
@@ -50,6 +51,8 @@ class Prestamo(db.Model):
     valor_saldado = db.Column(db.Float, nullable=False, default=0.0)
     saldo_pendiente = db.Column(db.Float, nullable=False)
     total_deuda = db.Column(db.Float, nullable=False)
+    fecha_inicio = db.Column(db.Date, nullable=False)
+    fecha_termino = db.Column(db.Date, nullable=False)
 
     cliente = db.relationship('Cliente', back_populates="prestamos")
 

@@ -146,8 +146,9 @@ def crear_cliente():
     data = request.get_json()
     cliente = Cliente(
         nombre=data['nombre'],
-        fecha_inicio=datetime.strptime(data['fecha_inicio'], '%Y-%m-%d'),
-        fecha_termino=datetime.strptime(data['fecha_termino'], '%Y-%m-%d')
+        numero_identificacion=data['numero_identificacion'],
+        celular=data['celular'],
+        
     )
     db.session.add(cliente)
     db.session.commit()
@@ -162,21 +163,28 @@ def registrar_prestamo():
     monto_prestado = data.get('monto_prestado')
     numero_cuota = data.get('numero_cuota')
     valor_cuota = data.get('valor_cuota')
+    fecha_inicio = datetime.strptime(data['fecha_inicio'], '%Y-%m-%d')
+    fecha_termino = datetime.strptime(data['fecha_termino'], '%Y-%m-%d')
     
-    if not all([cliente_id, cobrador_id, monto_prestado, numero_cuota, valor_cuota]):
+    # Validación de campos obligatorios
+    if not all([cliente_id, cobrador_id, monto_prestado, numero_cuota, valor_cuota, fecha_inicio, fecha_termino]):
         return jsonify({"error": "Todos los campos son obligatorios"}), 400
 
+    # Verificar existencia del cliente
     cliente = Cliente.query.get(cliente_id)
     if not cliente:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
+    # Verificar existencia del cobrador y rol
     cobrador = Usuario.query.get(cobrador_id)
     if not cobrador or cobrador.rol != 'cobrador':
         return jsonify({"error": "El usuario no existe o no tiene el rol de cobrador"}), 400
     
+    # Calcular el saldo pendiente y la deuda total
     saldo_pendiente = numero_cuota * valor_cuota
     total_deuda = monto_prestado + saldo_pendiente
 
+    # Crear el nuevo préstamo
     nuevo_prestamo = Prestamo(
         cliente_id=cliente_id,
         cobrador_id=cobrador_id,
@@ -184,12 +192,15 @@ def registrar_prestamo():
         numero_cuota=numero_cuota,
         valor_cuota=valor_cuota,
         saldo_pendiente=saldo_pendiente,
-        total_deuda=total_deuda
+        total_deuda=total_deuda,
+        fecha_inicio=fecha_inicio,
+        fecha_termino=fecha_termino,
     )
     db.session.add(nuevo_prestamo)
     db.session.commit()
 
     return jsonify({"message": "Préstamo registrado con éxito", "id": nuevo_prestamo.id}), 201
+
 
 @app.route('/clientes', methods=['GET'])
 def obtener_todos_los_clientes():
@@ -199,8 +210,6 @@ def obtener_todos_los_clientes():
         {
             "id": cliente.id,
             "nombre": cliente.nombre,
-            "fecha_inicio": cliente.fecha_inicio.strftime('%Y-%m-%d'),
-            "fecha_termino": cliente.fecha_termino.strftime('%Y-%m-%d'),
             "prestamos": [
                 {
                     "id": prestamo.id,
@@ -210,7 +219,9 @@ def obtener_todos_los_clientes():
                     "valor_saldado": prestamo.valor_saldado,
                     "saldo_pendiente": prestamo.saldo_pendiente,
                     "total_deuda": prestamo.total_deuda,
-                    "cobrador_id": prestamo.cobrador_id
+                    "cobrador_id": prestamo.cobrador_id,
+                    "fecha_inicio": cliente.fecha_inicio.strftime('%Y-%m-%d'),
+                    "fecha_termino": cliente.fecha_termino.strftime('%Y-%m-%d'),
                 } for prestamo in cliente.prestamos
             ]
         } for cliente in clientes
@@ -224,8 +235,6 @@ def obtener_cliente_con_prestamos(id):
     resultado = {
         "id": cliente.id,
         "nombre": cliente.nombre,
-        "fecha_inicio": cliente.fecha_inicio.strftime('%Y-%m-%d'),
-        "fecha_termino": cliente.fecha_termino.strftime('%Y-%m-%d'),
         "prestamos": [
             {
                 "id": prestamo.id,
@@ -235,7 +244,9 @@ def obtener_cliente_con_prestamos(id):
                 "valor_saldado": prestamo.valor_saldado,
                 "saldo_pendiente": prestamo.saldo_pendiente,
                 "total_deuda": prestamo.total_deuda,
-                "cobrador_id": prestamo.cobrador_id
+                "cobrador_id": prestamo.cobrador_id,
+                "fecha_inicio": cliente.fecha_inicio.strftime('%Y-%m-%d'),
+                "fecha_termino": cliente.fecha_termino.strftime('%Y-%m-%d'),
             } for prestamo in cliente.prestamos
         ]
     }
