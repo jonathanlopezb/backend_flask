@@ -47,6 +47,7 @@ class Prestamo(db.Model):
     cobrador_id = db.Column(db.Integer, nullable=False)
     monto_prestado = db.Column(db.Float, nullable=False)
     numero_cuota = db.Column(db.Integer, nullable=False)
+    cuotas_saldadas = db.Column(db.Integer, nullable=False)
     valor_cuota = db.Column(db.Float, nullable=False)
     valor_saldado = db.Column(db.Float, nullable=False, default=0.0)
     saldo_pendiente = db.Column(db.Float, nullable=False)

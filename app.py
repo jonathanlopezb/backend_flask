@@ -130,6 +130,7 @@ def obtener_cobrador_con_prestamos(cobrador_id):
                 "cliente_id": prestamo.cliente_id,
                 "cliente_nombre": Cliente.query.get(prestamo.cliente_id).nombre,
                 "monto_prestado": prestamo.monto_prestado,
+                "cuotas_saldadas": prestamo.cuotas_saldadas,
                 "numero_cuota": prestamo.numero_cuota,
                 "valor_cuota": prestamo.valor_cuota,
                 "valor_saldado": prestamo.valor_saldado,
@@ -163,11 +164,12 @@ def registrar_prestamo():
     monto_prestado = data.get('monto_prestado')
     numero_cuota = data.get('numero_cuota')
     valor_cuota = data.get('valor_cuota')
+    cuotas_saldadas = data.get('cuotas_saldadas')
     fecha_inicio = datetime.strptime(data['fecha_inicio'], '%Y-%m-%d')
     fecha_termino = datetime.strptime(data['fecha_termino'], '%Y-%m-%d')
     
     # Validación de campos obligatorios
-    if not all([cliente_id, cobrador_id, monto_prestado, numero_cuota, valor_cuota, fecha_inicio, fecha_termino]):
+    if not all([cliente_id, cobrador_id, monto_prestado, numero_cuota, valor_cuota, cuotas_saldadas, fecha_inicio, fecha_termino]):
         return jsonify({"error": "Todos los campos son obligatorios"}), 400
 
     # Verificar existencia del cliente
@@ -190,6 +192,7 @@ def registrar_prestamo():
         cobrador_id=cobrador_id,
         monto_prestado=monto_prestado,
         numero_cuota=numero_cuota,
+        cuotas_saldadas=cuotas_saldadas,
         valor_cuota=valor_cuota,
         saldo_pendiente=saldo_pendiente,
         total_deuda=total_deuda,
@@ -217,6 +220,7 @@ def obtener_todos_los_clientes():
                     "numero_cuota": prestamo.numero_cuota,
                     "valor_cuota": prestamo.valor_cuota,
                     "valor_saldado": prestamo.valor_saldado,
+                    "cuotas_saldadas": prestamo.cuotas_saldadas,
                     "saldo_pendiente": prestamo.saldo_pendiente,
                     "total_deuda": prestamo.total_deuda,
                     "cobrador_id": prestamo.cobrador_id,
@@ -241,6 +245,7 @@ def obtener_cliente_con_prestamos(id):
                 "monto_prestado": prestamo.monto_prestado,
                 "numero_cuota": prestamo.numero_cuota,
                 "valor_cuota": prestamo.valor_cuota,
+                "cuotas_saldadas": prestamo.cuotas_saldadas,
                 "valor_saldado": prestamo.valor_saldado,
                 "saldo_pendiente": prestamo.saldo_pendiente,
                 "total_deuda": prestamo.total_deuda,
