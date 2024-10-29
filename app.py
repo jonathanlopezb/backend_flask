@@ -128,7 +128,7 @@ def obtener_cobrador_con_prestamos(cobrador_id):
             {
                 "id": prestamo.id,
                 "cliente_id": prestamo.cliente_id,
-                "nombre_cliente": prestamo.nombre,
+                "cliente_nombre": Cliente.query.get(prestamo.cliente_id).nombre,
                 "monto_prestado": prestamo.monto_prestado,
                 "numero_cuota": prestamo.numero_cuota,
                 "valor_cuota": prestamo.valor_cuota,
