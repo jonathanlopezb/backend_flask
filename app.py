@@ -110,7 +110,7 @@ def obtener_usuarios_cobradores():
     resultado = [{"id": c.id, "nombre_usuario": c.nombre_usuario, "numero_identificacion": c.numero_identificacion, "rol": c.rol} for c in cobradores]
     return jsonify(resultado)
 
-@app.route('/cobrador/<int:cobrador_id>/prestamos', methods=['GET'])
+@app.route('/cobrador/prestamos/<int:cobrador_id>', methods=['GET'])
 def obtener_cobrador_con_prestamos(cobrador_id):
     cobrador = Usuario.query.filter_by(id=cobrador_id, rol="cobrador").first()
     if not cobrador:
