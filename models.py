@@ -17,7 +17,6 @@ class Usuario(db.Model):
     numero_identificacion = db.Column(db.String(20), unique=True, nullable=False)
     contraseña = db.Column(db.String(100), nullable=False)
     rol = db.Column(db.String(20), nullable=False)
-    estado = db.Column(db.String(20), nullable=False)
     
 
     def verificar_contraseña(self, contraseña):
@@ -32,8 +31,6 @@ class Cliente(db.Model):
     email = db.Column(db.String(100))
     direccion = db.Column(db.String(150))
     cobrador_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
-    estado = db.Column(db.String(20), nullable=False)
-
 
     cobrador = db.relationship("Usuario", backref="clientes_asignados", foreign_keys=[cobrador_id])
     prestamos = db.relationship('Prestamo', backref='cliente', lazy=True)
@@ -51,8 +48,6 @@ class Prestamo(db.Model):
     total_deuda = db.Column(db.Float, nullable=False)
     fecha_inicio = db.Column(db.Date, nullable=False)
     fecha_termino = db.Column(db.Date, nullable=False)
-    estado = db.Column(db.String(20), nullable=False)
-
 
 
 # Crear las tablas en la base de datos
