@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, session
 from models import *
 from config import *
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -51,7 +51,26 @@ def registrar_usuario():
     db.session.commit()
 
     return jsonify({"message": "Usuario registrado con éxito", "id": nuevo_usuario.id}), 201
+# Ruta de login
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    nombre_usuario = data.get('nombre_usuario')
+    contraseña = data.get('contraseña')
 
+    if not nombre_usuario or not contraseña:
+        return jsonify({"error": "Nombre de usuario y contraseña son obligatorios"}), 400
+
+    # Buscar usuario por nombre de usuario
+    usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
+    
+    # Verificar si el usuario existe y la contraseña es correcta
+    if usuario and check_password_hash(usuario.contraseña, contraseña):
+        # Generar una sesión o token para el usuario
+        session['user_id'] = usuario.id  # Configuración básica de sesión
+        return jsonify({"message": "Inicio de sesión exitoso", "user_id": usuario.id}), 200
+    else:
+        return jsonify({"error": "Credenciales incorrectas"}), 401
 # Rutas de Cliente
 @app.route('/cliente', methods=['POST'])
 def registrar_cliente():
