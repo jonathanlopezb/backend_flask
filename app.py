@@ -68,7 +68,7 @@ def login():
     if usuario and check_password_hash(usuario.contraseña, contraseña):
         # Generar una sesión o token para el usuario
         session['user_id'] = usuario.id  # Configuración básica de sesión
-        return jsonify({"status": "ok", "user_id": usuario.id}), 200
+        return jsonify({"status": "ok", "user_id": usuario.id, "nombre": usuario.nombre_usuario}), 200
     else:
         return jsonify({"error": "Credenciales incorrectas"}), 401
 # Rutas de Cliente
