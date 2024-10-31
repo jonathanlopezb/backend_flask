@@ -136,20 +136,28 @@ def registrar_prestamo():
     return jsonify({"message": "Préstamo registrado con éxito", "id": nuevo_prestamo.id}), 201
 
 # Pagar Cuota
-@app.route('/prestamo/pago/<int:prestamo_id>', methods=['POST'])
+@app.route('/prestamo/pago/<int:prestamo_id>', methods=['PUT'])
 def pagar_cuota(prestamo_id):
+    # Obtener el préstamo específico por ID
     prestamo = Prestamo.query.get(prestamo_id)
     if not prestamo:
         return jsonify({"error": "Préstamo no encontrado"}), 404
 
+    # Verificar si todas las cuotas ya han sido pagadas
     if prestamo.cuotas_saldadas >= prestamo.numero_cuota:
         return jsonify({"message": "Todas las cuotas ya han sido pagadas"}), 400
 
+    # Actualizar las cuotas saldadas y el saldo pendiente
     prestamo.cuotas_saldadas += 1
     prestamo.saldo_pendiente -= prestamo.valor_cuota
+
+    # Guardar los cambios en la base de datos
     db.session.commit()
 
-    return jsonify({"message": "Cuota pagada con éxito", "saldo_pendiente": prestamo.saldo_pendiente}), 200
+    return jsonify({
+        "message": "Cuota pagada con éxito",
+        "saldo_pendiente": prestamo.saldo_pendiente
+    }), 200
 
 # Obtener Clientes por Cobrador
 @app.route('/cobrador/clientes/<int:cobrador_id>', methods=['GET'])
