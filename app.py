@@ -51,8 +51,9 @@ def registrar_usuario():
     db.session.commit()
 
     return jsonify({"message": "Usuario registrado con éxito", "id": nuevo_usuario.id}), 201
-    
 # Ruta de login
+
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -98,7 +99,7 @@ def registrar_cliente():
     db.session.add(nuevo_cliente)
     db.session.commit()
 
-    return jsonify({"message": "Cliente registrado con éxito", "id": nuevo_cliente.id}), 201
+    return jsonify({"status": 200, "message": "Cliente registrado con éxito", "id": nuevo_cliente.id}), 201
 
 # Rutas de Préstamo
 @app.route('/prestamo', methods=['POST'])
