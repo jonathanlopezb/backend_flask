@@ -51,18 +51,19 @@ def registrar_usuario():
     db.session.commit()
 
     return jsonify({"message": "Usuario registrado con éxito", "id": nuevo_usuario.id}), 201
+    
 # Ruta de login
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    nombre_usuario = data.get('nombre_usuario')
+    numero_identificacion = data.get('numero_identificacion')
     contraseña = data.get('contraseña')
 
-    if not nombre_usuario or not contraseña:
-        return jsonify({"error": "Nombre de usuario y contraseña son obligatorios"}), 400
+    if not numero_identificacion or not contraseña:
+        return jsonify({"error": "Número de identificación y contraseña son obligatorios"}), 400
 
-    # Buscar usuario por nombre de usuario
-    usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
+    # Buscar usuario por número de identificación
+    usuario = Usuario.query.filter_by(numero_identificacion=numero_identificacion).first()
     
     # Verificar si el usuario existe y la contraseña es correcta
     if usuario and check_password_hash(usuario.contraseña, contraseña):
@@ -71,6 +72,7 @@ def login():
         return jsonify({"status": "ok", "user_id": usuario.id, "nombre": usuario.nombre_usuario}), 200
     else:
         return jsonify({"error": "Credenciales incorrectas"}), 401
+        
 # Rutas de Cliente
 @app.route('/cliente', methods=['POST'])
 def registrar_cliente():
