@@ -136,7 +136,7 @@ def registrar_prestamo():
     db.session.add(nuevo_prestamo)
     db.session.commit()
 
-    return jsonify({"message": "Préstamo registrado con éxito", "id": nuevo_prestamo.id}), 201
+    return jsonify({"status": 200, "message": "Préstamo registrado con éxito", "id": nuevo_prestamo.id}), 201
 
 # Pagar Cuota
 @app.route('/prestamo/pago/<int:prestamo_id>', methods=['PUT'])
