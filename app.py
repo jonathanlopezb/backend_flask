@@ -233,6 +233,7 @@ def obtener_clientes_por_cobrador(cobrador_id):
                 "valor_saldado": prestamo.valor_cuota * prestamo.cuotas_saldadas,
                 "saldo_pendiente": prestamo.saldo_pendiente,
                 "total_deuda": prestamo.total_deuda,
+                "cuotas_saldadas": prestamo.cuotas_saldadas,
                 "fecha_inicio": prestamo.fecha_inicio.strftime('%Y-%m-%d'),
                 "fecha_termino": prestamo.fecha_termino.strftime('%Y-%m-%d'),
                 "fecha_saldado": prestamo.fecha_saldado.strftime('%Y-%m-%d') if prestamo.fecha_saldado else None,
