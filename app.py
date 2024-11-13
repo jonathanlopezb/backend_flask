@@ -162,6 +162,7 @@ def pagar_cuota(prestamo_id):
     db.session.commit()
 
     return jsonify({
+        "status": 201,
         "message": "Cuota pagada con éxito",
         "saldo_pendiente": prestamo.saldo_pendiente,
         "estado": prestamo.estado,
