@@ -164,6 +164,38 @@ def pagar_cuota(prestamo_id):
     }), 200
 
 # Obtener Clientes por Cobrador
+
+@app.route('/clientes/prestamos/<int:cliente_id>', methods=['GET'])
+def obtener_prestamos_cliente(cliente_id):
+    cliente = Cliente.query.get(cliente_id)
+    if not cliente:
+        return jsonify({"error": "Cliente no encontrado"}), 404
+
+    prestamos = [
+        {
+            "id": prestamo.id,
+            "monto_prestado": prestamo.monto_prestado,
+            "numero_cuota": prestamo.numero_cuota,
+            "cuotas_saldadas": prestamo.cuotas_saldadas,
+            "valor_cuota": prestamo.valor_cuota,
+            "saldo_pendiente": prestamo.saldo_pendiente,
+            "total_deuda": prestamo.total_deuda,
+            "fecha_inicio": prestamo.fecha_inicio,
+            "fecha_termino": prestamo.fecha_termino,
+            "fecha_saldado": prestamo.fecha_saldado,
+            "estado": prestamo.estado
+        }
+        for prestamo in cliente.prestamos
+    ]
+
+    return jsonify({
+        "cliente": {
+            "id": cliente.id,
+            "nombre": cliente.nombre
+        },
+        "prestamos": prestamos
+    }), 200
+
 @app.route('/cobrador/clientes/<int:cobrador_id>', methods=['GET'])
 def obtener_clientes_por_cobrador(cobrador_id):
     cobrador = Usuario.query.get(cobrador_id)
@@ -172,6 +204,7 @@ def obtener_clientes_por_cobrador(cobrador_id):
 
     clientes = Cliente.query.filter_by(cobrador_id=cobrador_id).all()
     clientes_data = []
+    
     for cliente in clientes:
         cliente_info = {
             "id": cliente.id,
@@ -183,6 +216,7 @@ def obtener_clientes_por_cobrador(cobrador_id):
             "prestamos": []
         }
         
+        # Añadir información de cada préstamo del cliente
         for prestamo in cliente.prestamos:
             cliente_info["prestamos"].append({
                 "id": prestamo.id,
@@ -193,7 +227,9 @@ def obtener_clientes_por_cobrador(cobrador_id):
                 "saldo_pendiente": prestamo.saldo_pendiente,
                 "total_deuda": prestamo.total_deuda,
                 "fecha_inicio": prestamo.fecha_inicio.strftime('%Y-%m-%d'),
-                "fecha_termino": prestamo.fecha_termino.strftime('%Y-%m-%d')
+                "fecha_termino": prestamo.fecha_termino.strftime('%Y-%m-%d'),
+                "fecha_saldado": prestamo.fecha_saldado.strftime('%Y-%m-%d') if prestamo.fecha_saldado else None,
+                "estado": prestamo.estado
             })
         
         clientes_data.append(cliente_info)
@@ -207,6 +243,7 @@ def obtener_clientes_por_cobrador(cobrador_id):
         },
         "clientes": clientes_data
     }), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5002)

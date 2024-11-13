@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 from utils import *
 from config import *
+from datetime import datetime
+
 
 bcrypt = Bcrypt(app)
 
@@ -35,6 +37,7 @@ class Cliente(db.Model):
     cobrador = db.relationship("Usuario", backref="clientes_asignados", foreign_keys=[cobrador_id])
     prestamos = db.relationship('Prestamo', backref='cliente', lazy=True)
 
+
 class Prestamo(db.Model):
     __tablename__ = 'prestamos'
     id = db.Column(db.Integer, primary_key=True)
@@ -48,6 +51,11 @@ class Prestamo(db.Model):
     total_deuda = db.Column(db.Float, nullable=False)
     fecha_inicio = db.Column(db.Date, nullable=False)
     fecha_termino = db.Column(db.Date, nullable=False)
+    fecha_saldado = db.Column(db.DateTime, nullable=True)
+    estado = db.Column(db.String(10), default="activo")
+
+    cliente = db.relationship('Cliente', backref='prestamos')
+    cobrador = db.relationship('Usuario', backref='prestamos')
 
 
 # Crear las tablas en la base de datos
