@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, session
 from models import *
 from config import *
+from sqlalchemy.orm import joinedload 
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -252,6 +253,40 @@ def obtener_clientes_por_cobrador(cobrador_id):
         "clientes": clientes_data
     }), 200
 
+@app.route('/cliente/<int:cliente_id>', methods=['GET'])
+def obtener_cliente_con_prestamos(cliente_id):
+    cliente = Cliente.query.options(joinedload(Cliente.prestamos)).filter_by(id=cliente_id).first() # type: ignore
+
+    if not cliente:
+        return jsonify({"error": "Cliente no encontrado"}), 404
+
+    # Estructura de respuesta con los datos del cliente y sus préstamos
+    cliente_data = {
+        "id": cliente.id,
+        "nombre": cliente.nombre,
+        "numero_identificacion": cliente.numero_identificacion,
+        "telefono": cliente.telefono,
+        "email": cliente.email,
+        "direccion": cliente.direccion,
+        "prestamos": []
+    }
+
+    # Agregar los préstamos del cliente con su estado actual
+    for prestamo in cliente.prestamos:
+        cliente_data["prestamos"].append({
+            "id": prestamo.id,
+            "monto_prestado": prestamo.monto_prestado,
+            "numero_cuota": prestamo.numero_cuota,
+            "valor_cuota": prestamo.valor_cuota,
+            "valor_saldado": prestamo.valor_cuota * prestamo.cuotas_saldadas,
+            "saldo_pendiente": prestamo.saldo_pendiente,
+            "total_deuda": prestamo.total_deuda,
+            "estado": prestamo.estado,  # Activo o Saldado
+            "fecha_inicio": prestamo.fecha_inicio.strftime('%Y-%m-%d'),
+            "fecha_termino": prestamo.fecha_termino.strftime('%Y-%m-%d')
+        })
+
+    return jsonify(cliente_data), 200
 
 if __name__ == "__main__":
     app.run(debug=True, port=5002)
