@@ -280,6 +280,7 @@ def obtener_cliente_con_prestamos(cliente_id):
             "valor_cuota": prestamo.valor_cuota,
             "valor_saldado": prestamo.valor_cuota * prestamo.cuotas_saldadas,
             "saldo_pendiente": prestamo.saldo_pendiente,
+            "cuotas_saldadas": prestamo.cuotas_saldadas,
             "total_deuda": prestamo.total_deuda,
             "estado": prestamo.estado,  # Activo o Saldado
             "fecha_inicio": prestamo.fecha_inicio.strftime('%Y-%m-%d'),
