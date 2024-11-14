@@ -51,7 +51,7 @@ class Prestamo(db.Model):
     fecha_termino = db.Column(db.Date, nullable=False)
     fecha_saldado = db.Column(db.Date, nullable=True)
     estado = db.Column(db.String(10), default="activo")  # Estado activo o saldado
-
+    
     # Relación con Cliente utilizando back_populates en lugar de backref
     cliente = db.relationship('Cliente', back_populates='prestamos')
 

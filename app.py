@@ -171,35 +171,39 @@ def pagar_cuota(prestamo_id):
     }), 200
 
 
-from datetime import datetime
-from flask import request, jsonify
 
-@app.route('/prestamo/pago_parcial/<int:prestamo_id>', methods=['POST'])
-def pago_parcial(prestamo_id):
+@app.route('/prestamo/abono/<int:prestamo_id>', methods=['POST'])
+def abono_parcial(prestamo_id):
+    data = request.get_json()
+    monto_abono = data.get('monto_abono')
+
+    if not monto_abono or monto_abono <= 0:
+        return jsonify({"error": "Monto de abono inválido"}), 400
+
     prestamo = Prestamo.query.get(prestamo_id)
     if not prestamo:
         return jsonify({"error": "Préstamo no encontrado"}), 404
 
-    data = request.get_json()
-    monto_abono = data.get("monto_abono")
+    # Verificar si el préstamo ya está completamente saldado
+    if prestamo.saldo_pendiente <= 0:
+        return jsonify({"message": "El préstamo ya ha sido completamente saldado"}), 400
 
-    # Validación del monto_abono
-    if not monto_abono or monto_abono <= 0:
-        return jsonify({"error": "El monto de abono debe ser mayor a 0"}), 400
+    # Calcular el valor de cada cuota
+    valor_cuota = prestamo.monto_prestado / prestamo.numero_cuota
+
+    # Limitar el abono al saldo pendiente para evitar saldo negativo
     if monto_abono > prestamo.saldo_pendiente:
-        return jsonify({"error": "El abono excede el saldo pendiente"}), 400
+        monto_abono = prestamo.saldo_pendiente
 
-    # Aplica el abono parcial
-    prestamo.abono_parcial += monto_abono
+    # Aplicar el abono al saldo pendiente
     prestamo.saldo_pendiente -= monto_abono
 
-    # Si el abono parcial alcanza el valor de una cuota completa, salda una cuota
-    while prestamo.abono_parcial >= prestamo.valor_cuota:
-        prestamo.abono_parcial -= prestamo.valor_cuota
-        prestamo.cuotas_saldadas += 1
+    # Calcular las cuotas completas basadas en el saldo pendiente restante
+    cuotas_saldadas = int((prestamo.monto_prestado - prestamo.saldo_pendiente) / valor_cuota)
+    prestamo.cuotas_saldadas = cuotas_saldadas
 
-    # Verifica si el préstamo se ha completado
-    if prestamo.cuotas_saldadas >= prestamo.numero_cuota:
+    # Verificar si el préstamo ha sido completamente saldado
+    if prestamo.saldo_pendiente <= 0:
         prestamo.fecha_saldado = datetime.now()
         prestamo.estado = "saldado"
 
@@ -207,13 +211,13 @@ def pago_parcial(prestamo_id):
 
     return jsonify({
         "status": 200,
-        "message": "Abono parcial registrado con éxito",
+        "message": "Abono registrado con éxito",
         "saldo_pendiente": prestamo.saldo_pendiente,
         "cuotas_saldadas": prestamo.cuotas_saldadas,
-        "abono_parcial": prestamo.abono_parcial,
         "estado": prestamo.estado,
         "fecha_saldado": prestamo.fecha_saldado
     }), 200
+
 
 
 # Obtener Clientes por Cobrador
