@@ -171,38 +171,35 @@ def pagar_cuota(prestamo_id):
     }), 200
 
 
-@app.route('/prestamo/pago-parcial/<int:prestamo_id>', methods=['PUT'])
+from datetime import datetime
+from flask import request, jsonify
+
+@app.route('/prestamo/pago_parcial/<int:prestamo_id>', methods=['POST'])
 def pago_parcial(prestamo_id):
     prestamo = Prestamo.query.get(prestamo_id)
     if not prestamo:
         return jsonify({"error": "Préstamo no encontrado"}), 404
 
-    # Verificar si el préstamo ya está saldado
-    if prestamo.cuotas_saldadas >= prestamo.numero_cuota:
-        return jsonify({"message": "Todas las cuotas ya han sido pagadas"}), 400
-
-    # Obtener el monto del pago parcial desde la solicitud
     data = request.get_json()
-    monto_abono = data.get("monto_abono", 0.0)
+    monto_abono = data.get("monto_abono")
 
-    if monto_abono <= 0:
-        return jsonify({"error": "El monto del abono debe ser mayor a 0"}), 400
-    elif monto_abono > prestamo.saldo_pendiente:
-        return jsonify({"error": "El monto del abono no puede exceder el saldo pendiente"}), 400
+    # Validación del monto_abono
+    if not monto_abono or monto_abono <= 0:
+        return jsonify({"error": "El monto de abono debe ser mayor a 0"}), 400
+    if monto_abono > prestamo.saldo_pendiente:
+        return jsonify({"error": "El abono excede el saldo pendiente"}), 400
 
-    # Reducir el saldo pendiente en el monto del abono
+    # Aplica el abono parcial
+    prestamo.abono_parcial += monto_abono
     prestamo.saldo_pendiente -= monto_abono
 
-    # Acumular el abono parcial
-    prestamo.abono_parcial += monto_abono
-
-    # Verificar si los abonos acumulados alcanzan el valor de una cuota
+    # Si el abono parcial alcanza el valor de una cuota completa, salda una cuota
     while prestamo.abono_parcial >= prestamo.valor_cuota:
-        prestamo.cuotas_saldadas += 1
         prestamo.abono_parcial -= prestamo.valor_cuota
+        prestamo.cuotas_saldadas += 1
 
-    # Verificar si el préstamo ha sido completamente saldado
-    if prestamo.cuotas_saldadas == prestamo.numero_cuota:
+    # Verifica si el préstamo se ha completado
+    if prestamo.cuotas_saldadas >= prestamo.numero_cuota:
         prestamo.fecha_saldado = datetime.now()
         prestamo.estado = "saldado"
 
