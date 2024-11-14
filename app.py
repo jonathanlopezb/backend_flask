@@ -171,6 +171,54 @@ def pagar_cuota(prestamo_id):
     }), 200
 
 
+@app.route('/prestamo/pago-parcial/<int:prestamo_id>', methods=['PUT'])
+def pago_parcial(prestamo_id):
+    prestamo = Prestamo.query.get(prestamo_id)
+    if not prestamo:
+        return jsonify({"error": "Préstamo no encontrado"}), 404
+
+    # Verificar si el préstamo ya está saldado
+    if prestamo.cuotas_saldadas >= prestamo.numero_cuota:
+        return jsonify({"message": "Todas las cuotas ya han sido pagadas"}), 400
+
+    # Obtener el monto del pago parcial desde la solicitud
+    data = request.get_json()
+    monto_abono = data.get("monto_abono", 0.0)
+
+    if monto_abono <= 0:
+        return jsonify({"error": "El monto del abono debe ser mayor a 0"}), 400
+    elif monto_abono > prestamo.saldo_pendiente:
+        return jsonify({"error": "El monto del abono no puede exceder el saldo pendiente"}), 400
+
+    # Reducir el saldo pendiente en el monto del abono
+    prestamo.saldo_pendiente -= monto_abono
+
+    # Acumular el abono parcial
+    prestamo.abono_parcial += monto_abono
+
+    # Verificar si los abonos acumulados alcanzan el valor de una cuota
+    while prestamo.abono_parcial >= prestamo.valor_cuota:
+        prestamo.cuotas_saldadas += 1
+        prestamo.abono_parcial -= prestamo.valor_cuota
+
+    # Verificar si el préstamo ha sido completamente saldado
+    if prestamo.cuotas_saldadas == prestamo.numero_cuota:
+        prestamo.fecha_saldado = datetime.now()
+        prestamo.estado = "saldado"
+
+    db.session.commit()
+
+    return jsonify({
+        "status": 200,
+        "message": "Abono parcial registrado con éxito",
+        "saldo_pendiente": prestamo.saldo_pendiente,
+        "cuotas_saldadas": prestamo.cuotas_saldadas,
+        "abono_parcial": prestamo.abono_parcial,
+        "estado": prestamo.estado,
+        "fecha_saldado": prestamo.fecha_saldado
+    }), 200
+
+
 # Obtener Clientes por Cobrador
 
 @app.route('/clientes/prestamos/<int:cliente_id>', methods=['GET'])
