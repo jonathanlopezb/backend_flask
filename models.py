@@ -7,7 +7,6 @@ from utils import *
 from config import *
 from datetime import datetime
 
-
 bcrypt = Bcrypt(app)
 
 # Modelos de la base de datos
@@ -20,7 +19,6 @@ class Usuario(db.Model):
     contraseña = db.Column(db.String(100), nullable=False)
     rol = db.Column(db.String(20), nullable=False)
     prestamos = db.relationship('Prestamo', backref='cobrador', lazy=True)
-    
 
     def verificar_contraseña(self, contraseña):
         return check_password_hash(self.contraseña, contraseña)
@@ -29,7 +27,7 @@ class Cliente(db.Model):
     __tablename__ = 'clientes'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    numero_identificacion = db.Column(db.String(20), unique=True, nullable=False)
+    numero_identificacion = db.Column(db.String(20), nullable=False)
     telefono = db.Column(db.String(20), nullable=True)
     email = db.Column(db.String(100), nullable=True)
     direccion = db.Column(db.String(200), nullable=True)
@@ -55,11 +53,21 @@ class Prestamo(db.Model):
     # Relación con Cliente utilizando back_populates en lugar de backref
     cliente = db.relationship('Cliente', back_populates='prestamos')
 
+    # Relación con Pagos
+    pagos = db.relationship('Pago', back_populates='prestamo', lazy=True)
 
+class Pago(db.Model):
+    __tablename__ = 'pagos'
+    id = db.Column(db.Integer, primary_key=True)
+    prestamo_id = db.Column(db.Integer, db.ForeignKey('prestamos.id'), nullable=False)
+    fecha_pago = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    monto_abonado = db.Column(db.Float, nullable=False)
+    metodo_pago = db.Column(db.String(50), nullable=True)  # Opcional, para especificar método (efectivo, transferencia, etc.)
+    saldo_restante = db.Column(db.Float, nullable=False)
+    
+    # Relación con Prestamo
+    prestamo = db.relationship('Prestamo', back_populates='pagos')
 
 # Crear las tablas en la base de datos
 with app.app_context():
     db.create_all()
-
-
-
