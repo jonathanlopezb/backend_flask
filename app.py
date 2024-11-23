@@ -141,6 +141,167 @@ def registrar_prestamo():
 
 # Pagar Cuota
 
+
+
+# Guardar un nuevo pago
+@app.route('/pago', methods=['POST'])
+def registrar_pago():
+    data = request.get_json()
+    prestamo_id = data.get('prestamo_id')
+    monto_abonado = data.get('monto_abonado')
+
+    # Validar datos obligatorios
+    if not prestamo_id or not monto_abonado:
+        return jsonify({'error': 'Los campos prestamo_id y monto_abonado son obligatorios'}), 400
+
+    # Buscar el préstamo asociado
+    prestamo = Prestamo.query.get(prestamo_id)
+    if not prestamo:
+        return jsonify({'error': 'El préstamo no existe'}), 404
+
+    # Calcular saldo restante
+    nuevo_saldo_pendiente = prestamo.saldo_pendiente - monto_abonado
+    if nuevo_saldo_pendiente < 0:
+        return jsonify({'error': 'El monto abonado no puede ser mayor que el saldo pendiente'}), 400
+
+    # Registrar el pago
+    nuevo_pago = Pago(
+        prestamo_id=prestamo_id,
+        fecha_pago=datetime.utcnow(),
+        monto_abonado=monto_abonado,
+        saldo_restante=nuevo_saldo_pendiente
+    )
+    db.session.add(nuevo_pago)
+
+    # Actualizar el saldo pendiente y estado del préstamo
+    prestamo.saldo_pendiente = nuevo_saldo_pendiente
+    if nuevo_saldo_pendiente == 0:
+        prestamo.estado = 'saldado'
+        prestamo.fecha_saldado = datetime.utcnow()
+
+    db.session.commit()
+
+    return jsonify({'mensaje': 'Pago registrado exitosamente', 'pago': {
+        'id': nuevo_pago.id,
+        'prestamo_id': nuevo_pago.prestamo_id,
+        'fecha_pago': nuevo_pago.fecha_pago,
+        'monto_abonado': nuevo_pago.monto_abonado,
+        'saldo_restante': nuevo_pago.saldo_restante
+    }}), 201
+
+# Obtener todos los pagos
+@app.route('/pagos', methods=['GET'])
+def obtener_todos_los_pagos():
+    pagos = Pago.query.all()
+    resultados = []
+    for pago in pagos:
+        resultados.append({
+            'id': pago.id,
+            'prestamo_id': pago.prestamo_id,
+            'fecha_pago': pago.fecha_pago,
+            'monto_abonado': pago.monto_abonado,
+            'saldo_restante': pago.saldo_restante
+        })
+    return jsonify(resultados), 200
+
+# Obtener pagos de un préstamo específico
+@app.route('/prestamo/pagos/<int:prestamo_id>', methods=['GET'])
+def obtener_pagos_por_prestamo(prestamo_id):
+    prestamo = Prestamo.query.get(prestamo_id)
+    if not prestamo:
+        return jsonify({'error': 'El préstamo no existe'}), 404
+
+    pagos = Pago.query.filter_by(prestamo_id=prestamo_id).all()
+    resultados = []
+    for pago in pagos:
+        resultados.append({
+            'id': pago.id,
+            'fecha_pago': pago.fecha_pago,
+            'monto_abonado': pago.monto_abonado,
+            'saldo_restante': pago.saldo_restante
+        })
+    return jsonify({
+        'prestamo_id': prestamo_id,
+        'pagos': resultados
+    }), 200
+
+#------------------------ prestamos ------------------------------#
+@app.route('/prestamos-pagos', methods=['GET'])
+def obtener_prestamos_con_pagos():
+    prestamos = Prestamo.query.all()
+    resultados = []
+
+    for prestamo in prestamos:
+        pagos = Pago.query.filter_by(prestamo_id=prestamo.id).all()
+        lista_pagos = [
+            {
+                'id': pago.id,
+                'fecha_pago': pago.fecha_pago,
+                'monto_abonado': pago.monto_abonado,
+                'metodo_pago': pago.metodo_pago,
+                'saldo_restante': pago.saldo_restante
+            } for pago in pagos
+        ]
+
+        resultados.append({
+            'id': prestamo.id,
+            'cliente_id': prestamo.cliente_id,
+            'cobrador_id': prestamo.cobrador_id,
+            'monto_prestado': prestamo.monto_prestado,
+            'numero_cuota': prestamo.numero_cuota,
+            'valor_cuota': prestamo.valor_cuota,
+            'cuotas_saldadas': prestamo.cuotas_saldadas,
+            'saldo_pendiente': prestamo.saldo_pendiente,
+            'total_deuda': prestamo.total_deuda,
+            'fecha_inicio': prestamo.fecha_inicio,
+            'fecha_termino': prestamo.fecha_termino,
+            'fecha_saldado': prestamo.fecha_saldado,
+            'estado': prestamo.estado,
+            'pagos': lista_pagos
+        })
+
+    return jsonify(resultados), 200
+
+@app.route('/prestamos-pagos/<int:prestamo_id>', methods=['GET'])
+def obtener_prestamo_con_pagos(prestamo_id):
+    prestamo = Prestamo.query.get(prestamo_id)
+    
+    if not prestamo:
+        return jsonify({'error': 'Préstamo no encontrado'}), 404
+
+    pagos = Pago.query.filter_by(prestamo_id=prestamo_id).all()
+    lista_pagos = [
+        {
+            'id': pago.id,
+            'fecha_pago': pago.fecha_pago,
+            'monto_abonado': pago.monto_abonado,
+            'metodo_pago': pago.metodo_pago,
+            'saldo_restante': pago.saldo_restante
+        } for pago in pagos
+    ]
+
+    resultado = {
+        'id': prestamo.id,
+        'cliente_id': prestamo.cliente_id,
+        'cobrador_id': prestamo.cobrador_id,
+        'monto_prestado': prestamo.monto_prestado,
+        'numero_cuota': prestamo.numero_cuota,
+        'valor_cuota': prestamo.valor_cuota,
+        'cuotas_saldadas': prestamo.cuotas_saldadas,
+        'saldo_pendiente': prestamo.saldo_pendiente,
+        'total_deuda': prestamo.total_deuda,
+        'fecha_inicio': prestamo.fecha_inicio,
+        'fecha_termino': prestamo.fecha_termino,
+        'fecha_saldado': prestamo.fecha_saldado,
+        'estado': prestamo.estado,
+        'pagos': lista_pagos
+    }
+
+    return jsonify(resultado), 200
+
+#------------------------------------- // -------------------------------#
+
+
 @app.route('/prestamo/pago/<int:prestamo_id>', methods=['PUT'])
 def pagar_cuota(prestamo_id):
     prestamo = Prestamo.query.get(prestamo_id)
